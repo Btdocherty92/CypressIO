@@ -33,17 +33,8 @@ const getAllBranches = () => {
     })
 }
 
-const getIdByName = () => {
-    cy.request({
-        method: 'GET',
-        url: '/Branches',
-        headers: headers
-    }).its('body').then((body) => {
-        let result = body.results.find(g => g.name === 'API-CY-Branch')
-        console.log(`Result: ${result.id}`)
-        branchId = result.id
-    })
-}
+let branchId;
+let branchName = 'API-CY-Branch'
 
 describe('Branches API', () => {
 
@@ -76,38 +67,81 @@ describe('Branches API', () => {
         }))    
     })
 
+    it('GET ID by Name', () => {
+        cy.request({
+            method: 'GET',
+            url: '/Branches',
+            headers: headers
+        }).its('body').then((body) => {
+            let result = body.results.find(g => g.name === branchName)
+            if(result === undefined){
+                throw new Error(`Task name ${branchName} was not found`)
+            }
+            branchId = result.id
+        })
+    })
+
     it('GET by ID', () => {
-        getAllBranches().its('body').then((body) => {
-            let result = body.results.find(g => g.name === 'API-CY-Branch')
-            
-            cy.request({
-                method: 'GET',
-                url: `/Branches/${result.id}`,
-                headers: headers
-            }).as('branch')
+        console.log(`branchId: ${branchId}`)
+        cy.request({
+            method: 'GET',
+            url: `/Branches/${branchId}`,
+            headers: headers
+        }).as('branch')
+
+        cy.get('@branch').should((response => {
+            expect(response.body).to.have.property('name').which.equals(branchName)
+        }))
+    })
     
-            cy.get('@branch').should((response => {
-                expect(response.body).to.have.property('name').which.equals('API-CY-Branch')
-            }))
-        })
-    })
-
     it('DELETE by ID', () => {
-        getAllBranches().its('body').then((body) => {
-            let result = body.results.find(g => g.name === 'API-CY-Branch')
+        cy.request({
+            method: 'DELETE',
+            url: `/Branches/${branchId}`,
+            headers: headers
+        }).as('branchDel')
 
-            cy.request({
-                method: 'DELETE',
-                url: `/Branches/${result.id}`,
-                headers: headers
-            }).as('branchDel')
-
-            //Poll Activity
-            cy.get('@branchDel').should((response => {
-                expect(response.body).to.have.property('id')
-                let delID = response.body.id
-                pollActivity(delID)
-            }))
-        })
+        //Poll Activity
+        cy.get('@branchDel').should((response => {
+            expect(response.body).to.have.property('id')
+            let delID = response.body.id
+            pollActivity(delID)
+        }))
     })
+
+    // it('DELETE by ID', () => {
+    //     getAllBranches().its('body').then((body) => {
+    //         let result = body.results.find(g => g.name === 'API-CY-Branch')
+
+    //         cy.request({
+    //             method: 'DELETE',
+    //             url: `/Branches/${result.id}`,
+    //             headers: headers
+    //         }).as('branchDel')
+
+    //         //Poll Activity
+    //         cy.get('@branchDel').should((response => {
+    //             expect(response.body).to.have.property('id')
+    //             let delID = response.body.id
+    //             pollActivity(delID)
+    //         }))
+    //     })
+    // })
+
+    // it('GET by ID', () => {
+    //     getAllBranches().its('body').then((body) => {
+    //         let result = body.results.find(g => g.name === 'API-CY-Branch')
+            
+    //         cy.request({
+    //             method: 'GET',
+    //             url: `/Branches/${result.id}`,
+    //             headers: headers
+    //         }).as('branch')
+    
+    //         cy.get('@branch').should((response => {
+    //             expect(response.body).to.have.property('name').which.equals('API-CY-Branch')
+    //         }))
+    //     })
+    // })
+
 })
