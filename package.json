@@ -1,0 +1,24 @@
+{
+  "name": "cypressio",
+  "version": "1.0.0",
+  "description": "Cypress POC Project",
+  "main": "index.js",
+  "scripts": {
+    "test": "test",
+    "cypress:open": "cypress open",
+    "cy:run": "cypress run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Btdocherty92/CypressIO.git"
+  },
+  "author": "Ben Docherty",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Btdocherty92/CypressIO/issues"
+  },
+  "homepage": "https://github.com/Btdocherty92/CypressIO#readme",
+  "devDependencies": {
+    "cypress": "^10.3.1"
+  }
+}
